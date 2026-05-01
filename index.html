@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Event2Plan Quote Calculator</title>
+  <style>
+    :root {
+      --navy: #0b1f4d;
+      --navy-2: #12306f;
+      --gold: #c8a548;
+      --white: #ffffff;
+      --bg: #f6f8fc;
+      --text: #13213a;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(180deg, #eef2fb 0%, var(--bg) 100%);
+      color: var(--text);
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 960px;
+      background: var(--white);
+      border: 1px solid #e6eaf4;
+      border-radius: 16px;
+      box-shadow: 0 12px 30px rgba(11, 31, 77, 0.08);
+      overflow: hidden;
+    }
+
+    .header {
+      background: linear-gradient(135deg, var(--navy), var(--navy-2));
+      color: var(--white);
+      padding: 28px;
+    }
+
+    .brand {
+      font-size: 1.6rem;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+    }
+
+    .brand span { color: var(--gold); }
+
+    .subtitle {
+      margin-top: 8px;
+      opacity: 0.9;
+      font-size: 0.98rem;
+    }
+
+    .content {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 24px;
+      padding: 24px;
+    }
+
+    .panel {
+      border: 1px solid #e7ebf4;
+      border-radius: 12px;
+      padding: 18px;
+      background: #fff;
+    }
+
+    h2 {
+      margin: 0 0 14px;
+      font-size: 1.1rem;
+      color: var(--navy);
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .form-group { display: flex; flex-direction: column; gap: 6px; }
+    .form-group.full { grid-column: 1 / -1; }
+
+    label {
+      font-size: 0.86rem;
+      font-weight: 600;
+      color: #334566;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #cfd8ea;
+      border-radius: 8px;
+      background: #fff;
+      font-size: 0.95rem;
+      color: var(--text);
+    }
+
+    input:focus, select:focus {
+      outline: none;
+      border-color: var(--gold);
+      box-shadow: 0 0 0 3px rgba(200, 165, 72, 0.2);
+    }
+
+    .results {
+      background: #fbfcff;
+    }
+
+    .result-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 0;
+      border-bottom: 1px dashed #d8dfed;
+      gap: 10px;
+    }
+
+    .result-item:last-child { border-bottom: none; }
+    .result-item strong { color: var(--navy); }
+
+    .total {
+      margin-top: 8px;
+      padding: 12px;
+      border-radius: 10px;
+      background: var(--navy);
+      color: #fff;
+      display: flex;
+      justify-content: space-between;
+      font-weight: 700;
+    }
+
+    .note {
+      margin-top: 12px;
+      font-size: 0.8rem;
+      color: #5a6d91;
+    }
+
+    @media (max-width: 820px) {
+      .content { grid-template-columns: 1fr; }
+      .form-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header class="header">
+      <div class="brand">EVENT<span>2</span>PLAN</div>
+      <div class="subtitle">Quote Calculator • Fast, transparent event pricing</div>
+    </header>
+
+    <section class="content">
+      <div class="panel">
+        <h2>Event Details</h2>
+        <form id="quoteForm" class="form-grid">
+          <div class="form-group full">
+            <label for="clientName">Client Name</label>
+            <input id="clientName" type="text" placeholder="e.g. Acme Corporation" />
+          </div>
+
+          <div class="form-group">
+            <label for="participants">Number of Participants</label>
+            <input id="participants" type="number" min="1" step="1" value="20" />
+          </div>
+
+          <div class="form-group">
+            <label for="package">Package Option</label>
+            <select id="package">
+              <option value="190">Core</option>
+              <option value="250">Enhanced</option>
+              <option value="350">Premium</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="catering">Catering Add-on</label>
+            <select id="catering">
+              <option value="no">No</option>
+              <option value="yes">Yes</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="bandanas">Bandanas Add-on</label>
+            <select id="bandanas">
+              <option value="no">No</option>
+              <option value="yes">Yes</option>
+            </select>
+          </div>
+
+          <div class="form-group full">
+            <label for="margin">Profit Margin Percentage (%)</label>
+            <input id="margin" type="number" min="0" step="0.1" value="20" />
+          </div>
+        </form>
+      </div>
+
+      <aside class="panel results">
+        <h2>Quote Summary</h2>
+        <div class="result-item"><span>Client</span><strong id="outClient">—</strong></div>
+        <div class="result-item"><span>Subtotal</span><strong id="outSubtotal">R0.00</strong></div>
+        <div class="result-item"><span>Profit Amount</span><strong id="outProfit">R0.00</strong></div>
+        <div class="result-item"><span>Price Per Person</span><strong id="outPerPerson">R0.00</strong></div>
+        <div class="total"><span>Final Quote Total</span><span id="outTotal">R0.00</span></div>
+        <p class="note">Base prices: Core R190 pp, Enhanced R250 pp, Premium R350 pp, Catering R120 pp, Bandanas R15 pp.</p>
+      </aside>
+    </section>
+  </main>
+
+  <script>
+    const prices = {
+      catering: 120,
+      bandanas: 15
+    };
+
+    const form = document.getElementById('quoteForm');
+    const clientName = document.getElementById('clientName');
+    const participants = document.getElementById('participants');
+    const packageOption = document.getElementById('package');
+    const catering = document.getElementById('catering');
+    const bandanas = document.getElementById('bandanas');
+    const margin = document.getElementById('margin');
+
+    const outClient = document.getElementById('outClient');
+    const outSubtotal = document.getElementById('outSubtotal');
+    const outProfit = document.getElementById('outProfit');
+    const outPerPerson = document.getElementById('outPerPerson');
+    const outTotal = document.getElementById('outTotal');
+
+    const formatZAR = (amount) => `R${amount.toFixed(2)}`;
+
+    function calculateQuote() {
+      const count = Math.max(0, Number(participants.value) || 0);
+      const packagePrice = Number(packageOption.value) || 0;
+      const marginPct = Math.max(0, Number(margin.value) || 0);
+      const cateringCost = catering.value === 'yes' ? prices.catering : 0;
+      const bandanaCost = bandanas.value === 'yes' ? prices.bandanas : 0;
+
+      const subtotal = count * (packagePrice + cateringCost + bandanaCost);
+      const profitAmount = subtotal * (marginPct / 100);
+      const finalTotal = subtotal + profitAmount;
+      const perPerson = count > 0 ? finalTotal / count : 0;
+
+      outClient.textContent = clientName.value.trim() || '—';
+      outSubtotal.textContent = formatZAR(subtotal);
+      outProfit.textContent = formatZAR(profitAmount);
+      outTotal.textContent = formatZAR(finalTotal);
+      outPerPerson.textContent = formatZAR(perPerson);
+    }
+
+    form.addEventListener('input', calculateQuote);
+    calculateQuote();
+  </script>
+</body>
+</html>
